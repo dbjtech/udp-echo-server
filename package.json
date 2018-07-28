@@ -1,0 +1,26 @@
+{
+  "name": "udp-echo-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@brickyard/logger": "0.0.3",
+    "bluebird": "^3.5.1",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.2",
+    "mysql": "^2.16.0",
+    "squel": "^5.12.2"
+  },
+  "devDependencies": {
+    "eslint": "^5.1.0",
+    "eslint-config-airbnb": "^17.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jsx-a11y": "^6.1.0",
+    "eslint-plugin-react": "^7.10.0"
+  }
+}
