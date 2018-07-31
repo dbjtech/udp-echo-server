@@ -12,8 +12,8 @@
     "@brickyard/logger": "0.0.3",
     "bluebird": "^3.5.1",
     "lodash": "^4.17.10",
-    "moment": "^2.22.2",
-    "node-json-db": "^0.7.5"
+    "lowdb": "^1.0.0",
+    "moment": "^2.22.2"
   },
   "devDependencies": {
     "eslint": "^5.1.0",

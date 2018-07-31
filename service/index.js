@@ -1,14 +1,26 @@
 const logger = require('@brickyard/logger')
 const moment = require('moment')
-const JsonDb = require('node-json-db')
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
 
-const db = new JsonDb('echo_recoed', true, false)
+const adapter = new FileSync('echo_record.json')
+const lowdb = low(adapter)
+lowdb.defaults({ echo_records: [] }).write()
+
 
 async function execute(buffer, reply) {
 	logger.console.info('[udp-echo-server] [Receive] %s', buffer.toString())
 	const reqData = buffer.toString()
 	if ((reqData.length === 15) && (/^[1-9]\d*$/.exec(reqData) !== null)) {
-		db.push(`/${reqData}`, moment().unix())
+		const record = lowdb.get('echo_records').find({ imei: reqData }).value()
+		if (record) {
+			lowdb.get('echo_records')
+				.find({ imei: reqData })
+				.assign({ timesamp: moment().unix() })
+				.write()
+		} else {
+			lowdb.get('echo_records').push({ imei: reqData, timesamp: moment().unix() }).write()
+		}
 
 		const arr = new Uint16Array(1)
 		arr[0] = 1
