@@ -13,7 +13,6 @@ const DEFAULT_OPTIONS = {
 const port = _.get(config, 'web.port') || _.get(DEFAULT_OPTIONS, 'port')
 
 server.on('message', ({ buffer, reply }) => {
-	console.log('buffer', buffer)
 	process.nextTick(() => {
 		try {
 			service.execute(buffer, reply)
