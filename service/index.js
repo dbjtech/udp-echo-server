@@ -3,7 +3,7 @@ const moment = require('moment')
 const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
 
-const adapter = new FileSync('echo_record.json')
+const adapter = new FileSync('./echo_record.json')
 const lowdb = low(adapter)
 lowdb.defaults({ echo_records: [] }).write()
 
