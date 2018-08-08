@@ -6,7 +6,7 @@ const FileSync = require('lowdb/adapters/FileSync')
 const moment = require('moment')
 
 
-const adapter = new FileSync('echo_record.json')
+const adapter = new FileSync('../echo_record.json')
 const lowdb = low(adapter)
 
 const router = new Router()
