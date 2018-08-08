@@ -30,12 +30,15 @@ router.get('/get/echo/time', (ctx) => {
 		}
 		return
 	}
-	const dataList = _.map(data.imei, v => lowdb.get('echo_records').find({ imei: v }).value())
+	const dataList = _.map(data.imei, v => lowdb.get('echo_records').cloneDeep().find({ imei: v }).value())
+	console.log('dataList1', dataList)
 	_.forEach(dataList, (imei) => {
 		if (imei) {
+			console.log(imei.timesamp)
 			imei.timesamp = moment(imei.timesamp * 1000).format('YYYY-MM-DD HH:mm:ss')
 		}
 	})
+	console.log('dataList', dataList)
 	ctx.body = {
 		status: 200,
 		message: 'success',
