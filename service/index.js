@@ -30,5 +30,5 @@ async function execute(buffer, reply) {
 }
 
 module.exports = {
-	execute,
+	execute, lowdb,
 }
