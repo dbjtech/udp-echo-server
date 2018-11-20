@@ -2,23 +2,57 @@ const Router = require('koa-router')
 const ajv = require('ajv')({ useDefaults: true })
 const _ = require('lodash')
 const moment = require('moment')
+const fs = require('fs')
+const bluebird = require('bluebird')
+const schedule = require('node-schedule')
 
+bluebird.promisifyAll(fs)
 const { lowdb } = require('../service')
 
+const schedules = []
+
+function register_schedule(name, cron, task) {
+	if (schedules[name]) {
+		console.log('schedule', name, 'reload') // eslint-disable-line no-console
+		schedules[name].cancel()
+	}
+	console.log(`register schedule ${name} success`)
+	schedules[name] = schedule.scheduleJob(cron, () => {
+		try {
+			task()
+		} catch (e) {
+			console.error('run schedule error', e.stack) // eslint-disable-line no-console
+		}
+	})
+	return schedules[name]
+}
+
+function removeOvertimeRecord() {
+	const overtimeRecords = lowdb.get('echo_records').cloneDeep().filter(v => v.timestamp <= moment().subtract(1, 'month').unix())
+		.value()
+	console.log('remove records:%j', overtimeRecords)
+	if (overtimeRecords.length > 0) {
+		_.forEach(overtimeRecords, (v) => {
+			lowdb.get('echo_records').remove(v).write()
+		})
+	}
+}
 
 const router = new Router()
 
 const schema = {
 	properties: {
-		imei: { type: 'array', minItems: 1, items: { type: 'string' } },
+		startTime: { type: 'number' },
+		endTime: { type: 'number' },
 	},
-	required: ['imei'],
+	required: ['startTime', 'endTime'],
 }
 
 const validate = ajv.compile(schema)
 
 router.get('/get/echo/time', (ctx) => {
-	const data = _.mapKeys(ctx.query, (v, k) => _.camelCase(k))
+	let data = _.mapKeys(ctx.query, (v, k) => _.camelCase(k))
+	data = _.mapValues(data, v => _.parseInt(v))
 	const valid = validate(data)
 	if (!valid) {
 		ctx.body = {
@@ -28,13 +62,11 @@ router.get('/get/echo/time', (ctx) => {
 		return
 	}
 	console.log('data', data)
-	const dataList = _.map(data.imei, v => lowdb.get('echo_records').cloneDeep().find({ imei: v }).value())
+	const dataList = lowdb.get('echo_records').cloneDeep().sortBy(v => v.timestamp <= data.endTime && v.timestamp >= data.startTime)
+		.value()
 	console.log('dataList1', dataList)
-	_.forEach(dataList, (imei) => {
-		if (imei) {
-			console.log(imei.timesamp)
-			imei.timesamp = moment(imei.timesamp * 1000).format('YYYY-MM-DD HH:mm:ss')
-		}
+	_.forEach(dataList, (echoRecord) => {
+		echoRecord.timestamp = moment(echoRecord.timestamp * 1000).format('YYYY-MM-DD HH:mm:ss')
 	})
 	ctx.body = {
 		status: 200,
@@ -43,6 +75,11 @@ router.get('/get/echo/time', (ctx) => {
 	}
 })
 
+router.get('/export/record', async (ctx) => {
+	ctx.body = await fs.readFileAsync(`${__dirname}/../echo_record.json`)
+})
+
+
 module.exports = {
-	router,
+	router, register_schedule, removeOvertimeRecord,
 }

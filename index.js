@@ -20,10 +20,10 @@ const DEFAULT_OPTIONS = {
 const port = _.get(config, 'web.port') || _.get(DEFAULT_OPTIONS, 'port')
 const host = _.get(config, 'web.host') || _.get(DEFAULT_OPTIONS, 'host')
 
-server.on('message', ({ buffer, reply }) => {
+server.on('message', ({ buffer }) => {
 	process.nextTick(() => {
 		try {
-			service.execute(buffer, reply)
+			service.execute(buffer)
 		} catch (e) {
 			logger.console.error('[udp-echo-server error] %o', e)
 		}
@@ -41,6 +41,8 @@ async function start() {
 	app.listen(port, host, () => {
 		console.log('Start Http Server @ %s:%s', host, port)
 	})
+	router.register_schedule('remove_overtime_record', '0 * * * * *', router.removeOvertimeRecord)
+	console.log('schedule start')
 }
 
 start()

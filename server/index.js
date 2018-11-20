@@ -13,10 +13,10 @@ module.exports = class Server extends events.EventEmitter {
 		super()
 		this.server = dgram.createSocket('udp4')
 		this.server.on('error', (error) => { this.emit('error', error) })
-		this.server.on('message', (msg, { port, address }) => {
+		this.server.on('message', (msg) => {
 			this.emit('message', {
 				buffer: msg,
-				reply: buffer => this.server.sendAsync(buffer, port, address),
+				// reply: buffer => this.server.sendAsync(buffer, port, address),
 			})
 		})
 	}
