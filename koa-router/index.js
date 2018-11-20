@@ -62,7 +62,7 @@ router.get('/get/echo/time', (ctx) => {
 		return
 	}
 	console.log('data', data)
-	const dataList = lowdb.get('echo_records').cloneDeep().sortBy(v => v.timestamp <= data.endTime && v.timestamp >= data.startTime)
+	const dataList = lowdb.get('echo_records').cloneDeep().filter(v => (v.timestamp <= data.endTime && v.timestamp >= data.startTime))
 		.value()
 	console.log('dataList1', dataList)
 	_.forEach(dataList, (echoRecord) => {
